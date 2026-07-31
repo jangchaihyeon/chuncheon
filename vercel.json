@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/routes.py": {
+      "includeFiles": "{transit_backend/**,public/transit/data/**}"
+    }
+  },
   "rewrites": [
     {
       "source": "/transit-api/routes",
