@@ -13,6 +13,7 @@ from flask import Flask, jsonify, render_template, request
 
 
 TRANSIT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = TRANSIT_ROOT.parent
 sys.path.insert(0, str(TRANSIT_ROOT))
 
 from bus_realtime import (  # noqa: E402
@@ -100,7 +101,16 @@ def load_config() -> dict:
         "r",
         encoding="utf-8",
     ) as file:
-        return yaml.safe_load(file)
+        config = yaml.safe_load(file)
+
+    for key in ("route_stops_csv", "timetable_csv"):
+        raw_path = config["data"][key]
+        resolved_path = Path(raw_path)
+        if not resolved_path.is_absolute():
+            resolved_path = (PROJECT_ROOT / raw_path).resolve()
+        config["data"][key] = str(resolved_path)
+
+    return config
 
 
 def format_clock(value: datetime | None) -> str | None:
