@@ -2,3 +2,4 @@ streamlit
 PyYAML
 python-dotenv
 requests
+Flask
