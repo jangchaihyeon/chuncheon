@@ -274,7 +274,7 @@ async function calculateAndRender() {
   $("#search").disabled = true;
 
   try {
-    const response = await fetch("/transit-api/routes", {
+    const response = await fetch("/api/routes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -292,6 +292,11 @@ async function calculateAndRender() {
         },
       }),
     });
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text();
+      throw new Error(`API가 JSON 대신 다른 응답을 보냈습니다. ${text.slice(0, 80)}`);
+    }
     const payload = await response.json();
     if (token !== state.searchToken) return;
     if (!response.ok) throw new Error(payload.detail || payload.error || "경로 조회 실패");
