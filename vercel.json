@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/transit-api/routes",
+      "destination": "/api/routes"
+    }
+  ]
+}
