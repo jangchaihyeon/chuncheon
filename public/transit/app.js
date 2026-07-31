@@ -62,6 +62,12 @@ function bindEvents() {
 }
 
 async function loadData() {
+  try {
+    const routeStopsText = await fetchText(ROUTE_STOPS_URL);
+    state.rows = parseRouteStops(parseCsv(routeStopsText));
+  } catch (error) {
+    console.warn("Transit CSV fallback data failed to load", error);
+  }
   $("#loading").classList.add("hidden");
 }
 
@@ -295,23 +301,118 @@ async function calculateAndRender() {
     const contentType = response.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {
       const text = await response.text();
-      throw new Error(`API가 JSON 대신 다른 응답을 보냈습니다. ${text.slice(0, 80)}`);
+      throw new Error(`API\uAC00 JSON \uB300\uC2E0 \uB2E4\uB978 \uC751\uB2F5\uC744 \uBCF4\uB0C8\uC2B5\uB2C8\uB2E4. ${text.slice(0, 80)}`);
     }
     const payload = await response.json();
     if (token !== state.searchToken) return;
-    if (!response.ok) throw new Error(payload.detail || payload.error || "경로 조회 실패");
+    if (!response.ok) throw new Error(payload.detail || payload.error || "\uACBD\uB85C \uC870\uD68C \uC2E4\uD328");
     state.data = payload;
-    $("#queried-at").textContent = `${payload.queried_at} 기준`;
+    $("#queried-at").textContent = `${payload.queried_at} \uAE30\uC900`;
     renderRoutes(getApiCategoryRoutes());
   } catch (error) {
     if (token !== state.searchToken) return;
-    showError(`대중교통 API를 연결하지 못했습니다. ${error.message}`);
+    try {
+      state.data = calculateLocalRouteData();
+      $("#queried-at").textContent = `${state.data.queried_at} \uAE30\uC900`;
+      renderRoutes(getApiCategoryRoutes());
+    } catch (fallbackError) {
+      showError(`\uB300\uC911\uAD50\uD1B5 API\uB97C \uC5F0\uACB0\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. ${fallbackError.message || error.message}`);
+    }
   } finally {
     if (token === state.searchToken) {
       $("#loading").classList.add("hidden");
       $("#search").disabled = false;
     }
   }
+}
+
+function calculateLocalRouteData() {
+  if (!state.rows.length) {
+    throw new Error("로컬 버스 노선 데이터가 아직 로드되지 않았습니다.");
+  }
+  const originStops = getNearestStops(state.origin, state.rows, 8, 1200);
+  const destinationStops = getNearestStops(state.destination, state.rows, 8, 1200);
+  if (!originStops.length || !destinationStops.length) {
+    throw new Error("가까운 정류장을 찾지 못했습니다.");
+  }
+
+  const localRoutes = [
+    ...findDirectRoutes(originStops, destinationStops),
+    ...findTransferRoutes(originStops, destinationStops),
+  ].slice(0, 40);
+  const categories = {
+    recommended: { label: "추천순", routes: sortRoutes(localRoutes, "recommended").map(convertLocalRouteToApiRoute) },
+    fastest: { label: "빠른 도착순", routes: sortRoutes(localRoutes, "fastest").map(convertLocalRouteToApiRoute) },
+    direct: { label: "직통 우선", routes: sortRoutes(localRoutes, "direct").map(convertLocalRouteToApiRoute) },
+    "least-walking": { label: "최소 도보순", routes: sortRoutes(localRoutes, "least-walking").map(convertLocalRouteToApiRoute) },
+  };
+
+  return {
+    origin: {
+      name: state.origin.name,
+      description: state.origin.name,
+      latitude: state.origin.lat,
+      longitude: state.origin.lng,
+    },
+    destination: {
+      name: state.destination.name,
+      description: state.destination.address,
+      latitude: state.destination.lat,
+      longitude: state.destination.lng,
+    },
+    queried_at: new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(new Date()),
+    routes: localRoutes.map(convertLocalRouteToApiRoute),
+    categories,
+  };
+}
+
+function convertLocalRouteToApiRoute(route) {
+  const originWalk = route.originStop?.distanceM || 0;
+  const destinationWalk = route.destinationStop?.distanceM || 0;
+  const transferWalk = Math.max((route.walkingDistanceM || 0) - originWalk - destinationWalk, 0);
+  return {
+    transfer_count: Math.max((route.segments?.length || 1) - 1, 0),
+    in_vehicle_text: `${Math.max(Math.round(route.inVehicleMinutes || 1), 1)}분`,
+    arrival_time: route.arrivalTime ? formatArrivalTime(route.arrivalTime) : "",
+    tags: getRouteTags(route),
+    walking_distance_m: route.walkingDistanceM || originWalk + destinationWalk,
+    origin_walking_distance_m: originWalk,
+    origin_walking_minutes: originWalk / WALKING_SPEED_M_PER_MINUTE,
+    transfer_walking_distance_m: transferWalk,
+    transfer_walking_minutes: transferWalk / WALKING_SPEED_M_PER_MINUTE,
+    destination_walking_distance_m: destinationWalk,
+    destination_walking_minutes: destinationWalk / WALKING_SPEED_M_PER_MINUTE,
+    segments: (route.segments || []).map((segment) => ({
+      route_numbers: [String(segment.routeNumber || route.routeNumber || "")],
+      boarding_stop: segment.from,
+      boarding_stop_number: route.originStop?.number || "",
+      alighting_stop: segment.to,
+      alighting_stop_number: route.destinationStop?.number || "",
+      stop_count: Math.max(Math.round(segment.stopCount || 1), 1),
+      in_vehicle_text: `${Math.max(Math.round(segment.minutes || 1), 1)}분`,
+      bus_options: [{
+        route_number: String(segment.routeNumber || route.routeNumber || ""),
+        wait_text: route.waitText || "시간표 확인",
+        boarding_time: route.boardingTime ? formatTimeOnly(route.boardingTime) : "",
+      }],
+      realtime_arrivals: [],
+      stops: [],
+    })),
+  };
+}
+
+function formatTimeOnly(date) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function findDirectRoutes(originStops, destinationStops) {
@@ -686,6 +787,14 @@ function formatArrivalTime(arrival) {
 
 function getNextBusInfo(routeRow, originWalkingMinutes = 0) {
   const now = new Date();
+  if (!state.timetable.length) {
+    return {
+      availableToday: true,
+      boardingTime: null,
+      waitMinutes: 0,
+      waitText: "시간표 확인",
+    };
+  }
   const day = getServiceDay(now);
   const earliestBoarding = new Date(now.getTime() + Math.ceil(originWalkingMinutes) * 60000);
   const routeTimes = state.timetable.filter((row) => row.routeId === routeRow.routeId && row.serviceDay === day);
