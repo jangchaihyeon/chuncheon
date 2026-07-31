@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "dev:api": "python transit_backend/run_api.py",
+    "dev:transit": "python -m streamlit run streamlit_app.py --server.address 127.0.0.1 --server.port 8501",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest"
+  },
+  "devDependencies": {}
+}

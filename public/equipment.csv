@@ -1,0 +1,84 @@
+﻿equipment_id,space_id,equipment_name,quantity,equipment_type,asset_mode
+E001,R001,빔프로젝터,1,display,fixed
+E002,R001,스크린,1,display,fixed
+E003,R001,음향장비,1,audio,fixed
+E004,R001,유무선 마이크,1,audio,fixed
+E005,R001,스마트TV,1,display,fixed
+E006,R001,책상 및 의자,100,furniture,fixed
+E007,R002,빔프로젝터,1,display,fixed
+E008,R002,스크린,1,display,fixed
+E009,R002,음향장비,1,audio,fixed
+E010,R002,유무선 마이크,1,audio,fixed
+E011,R002,책상 및 의자,50,furniture,fixed
+E012,R003,빔프로젝터,1,display,fixed
+E013,R003,스크린,1,display,fixed
+E014,R003,음향장비,1,audio,fixed
+E015,R003,무선 마이크,1,audio,fixed
+E016,R004,빔프로젝터,1,display,fixed
+E017,R004,스크린,1,display,fixed
+E018,R004,음향장비,1,audio,fixed
+E019,R004,유무선 마이크,1,audio,fixed
+E020,R004,이동식 화이트보드,1,board,fixed
+E021,R004,책상 및 의자,15,furniture,fixed
+E022,R005,빔프로젝터,1,display,fixed
+E023,R005,스크린,1,display,fixed
+E024,R005,음향장비,1,audio,fixed
+E025,R005,유무선 마이크,1,audio,fixed
+E026,R005,이동식 화이트보드,1,board,fixed
+E027,R005,책상 및 의자,15,furniture,fixed
+E028,R006,빔프로젝터,1,display,fixed
+E029,R006,스크린,1,display,fixed
+E030,R006,음향장비,1,audio,fixed
+E031,R006,유무선 마이크,1,audio,fixed
+E032,R006,이동식 화이트보드,1,board,fixed
+E033,R006,책상 및 의자,30,furniture,fixed
+E034,R007,스마트TV,1,display,fixed
+E035,R007,책상 및 의자,6,furniture,fixed
+E036,R008,스마트TV,1,display,fixed
+E037,R008,책상 및 의자,6,furniture,fixed
+E038,R009,노트북,1,computer,rental
+E039,R009,빔프로젝터,1,display,fixed
+E040,R009,조명 및 주요 무대장치,1,other,unknown
+E041,R009,유무선 마이크 및 음향시설,1,audio,fixed
+E042,R009,전산실 PC,1,computer,rental
+E104,R019,좌석,30,furniture,fixed
+E105,R020,좌석,24,furniture,fixed
+E106,R021,미디어장비,18,digital,fixed
+E107,R021,Vegas Pro 19 편집프로그램,1,digital,fixed
+E108,R022,좌석,20,furniture,fixed
+E109,R023,좌석,12,furniture,fixed
+E110,R024,빔프로젝터,1,display,rental
+E111,R024,노트북,1,computer,rental
+E112,R024,음향시설,1,audio,rental
+E113,R024,보드판,1,board,rental
+E114,R024,냉난방기,1,facility,fixed
+E115,R024,냉온수기,1,facility,fixed
+E116,R024,좌석,40,furniture,fixed
+E117,R025,빔프로젝터,1,display,rental
+E118,R025,노트북,1,computer,rental
+E119,R025,음향시설,1,audio,rental
+E120,R025,냉난방기,1,facility,fixed
+E121,R025,좌석,24,furniture,fixed
+E122,R026,청소년활동 시설,1,space_facility,unknown
+E123,R027,프로그램 운영공간,1,space_facility,unknown
+E124,R027,좌석,25,furniture,fixed
+E125,R028,마이크,1,audio,fixed
+E126,R028,스크린,1,display,fixed
+E127,R028,프로젝터,1,display,fixed
+E128,R028,좌석,30,furniture,fixed
+E129,R029,스크린,1,display,fixed
+E130,R029,프로젝터,1,display,fixed
+E131,R029,좌석,18,furniture,fixed
+E132,R030,마이크,1,audio,fixed
+E133,R030,스크린,1,display,fixed
+E134,R030,프로젝터,1,display,fixed
+E135,R030,좌석,80,furniture,fixed
+E136,R031,스마트TV,1,display,fixed
+E137,R031,좌석,10,furniture,fixed
+E138,R032,빔프로젝터,1,display,fixed
+E139,R032,인터넷,1,facility,fixed
+E140,R032,냉방,1,facility,fixed
+E141,R032,난방,1,facility,fixed
+E142,R032,좌석,25,furniture,fixed
+E143,R033,바이오 실습교육 장비,1,bio_lab,fixed
+E144,R033,좌석,120,furniture,fixed
