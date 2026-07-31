@@ -426,7 +426,8 @@ function findDirectRoutes(originStops, destinationStops) {
           row.routeId === originRow.routeId && row.sequence > originRow.sequence
         );
         if (!destinationRow) continue;
-        const inVehicleMinutes = Math.max((destinationRow.cumulativeSeconds - originRow.cumulativeSeconds) / 60, 1);
+        const stopCount = destinationRow.sequence - originRow.sequence;
+        const inVehicleMinutes = Math.max((destinationRow.cumulativeSeconds - originRow.cumulativeSeconds) / 60, stopCount * 2, 1);
         const walkingDistanceM = originStop.distanceM + destinationStop.distanceM;
         const originWalkingMinutes = originStop.distanceM / WALKING_SPEED_M_PER_MINUTE;
         const destinationWalkingMinutes = destinationStop.distanceM / WALKING_SPEED_M_PER_MINUTE;
@@ -449,7 +450,7 @@ function findDirectRoutes(originStops, destinationStops) {
             routeNumber: originRow.routeNumber,
             from: originStop.name,
             to: destinationStop.name,
-            stopCount: destinationRow.sequence - originRow.sequence,
+            stopCount,
             minutes: inVehicleMinutes,
           }],
         });
@@ -476,8 +477,10 @@ function findTransferRoutes(originStops, destinationStops) {
           );
           if (!transfer || first.routeId === secondDest.routeId) continue;
           const secondTransfer = secondRouteRows.find((row) => row.stopId === transfer.stopId && row.sequence < secondDest.sequence);
-          const firstMinutes = Math.max((transfer.cumulativeSeconds - first.cumulativeSeconds) / 60, 1);
-          const secondMinutes = Math.max((secondDest.cumulativeSeconds - secondTransfer.cumulativeSeconds) / 60, 1);
+          const firstStopCount = transfer.sequence - first.sequence;
+          const secondStopCount = secondDest.sequence - secondTransfer.sequence;
+          const firstMinutes = Math.max((transfer.cumulativeSeconds - first.cumulativeSeconds) / 60, firstStopCount * 2, 1);
+          const secondMinutes = Math.max((secondDest.cumulativeSeconds - secondTransfer.cumulativeSeconds) / 60, secondStopCount * 2, 1);
           const walkingDistanceM = originStop.distanceM + destinationStop.distanceM;
           const originWalkingMinutes = originStop.distanceM / WALKING_SPEED_M_PER_MINUTE;
           const destinationWalkingMinutes = destinationStop.distanceM / WALKING_SPEED_M_PER_MINUTE;
@@ -501,14 +504,14 @@ function findTransferRoutes(originStops, destinationStops) {
                 routeNumber: first.routeNumber,
                 from: originStop.name,
                 to: transfer.name,
-                stopCount: transfer.sequence - first.sequence,
+                stopCount: firstStopCount,
                 minutes: firstMinutes,
               },
               {
                 routeNumber: secondDest.routeNumber,
                 from: transfer.name,
                 to: destinationStop.name,
-                stopCount: secondDest.sequence - secondTransfer.sequence,
+                stopCount: secondStopCount,
                 minutes: secondMinutes,
               },
             ],

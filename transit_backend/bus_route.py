@@ -562,6 +562,13 @@ def calculate_in_vehicle_time(
             "하차 정류장이 탑승 정류장보다 앞에 있습니다."
         )
 
+    stop_count = max(
+        int(destination_stop.get("direction_order", 0))
+        - int(origin_stop.get("direction_order", 0)),
+        1,
+    )
+    seconds = max(seconds, stop_count * 120)
+
     return round(seconds, 1), round(seconds / 60, 2)
 
 
