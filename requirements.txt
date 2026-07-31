@@ -1,5 +1,4 @@
-streamlit
+Flask
 PyYAML
 python-dotenv
 requests
-Flask
